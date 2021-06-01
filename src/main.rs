@@ -5,8 +5,8 @@ use std::fs;
 use std::thread::sleep;
 use std::time::Duration;
 
-const DAYS_PATH: &str = "./days.json";
-const MONTHS_PATH: &str = "./months.json";
+const DAYS_PATH: &str = "/home/matiasop98/tmp/days.json";
+const MONTHS_PATH: &str = "/home/matiasop98/tmp/months.json";
 const MINUTES_STEP: i64 = 1;
 
 fn main() {
