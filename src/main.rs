@@ -1,24 +1,28 @@
 use chrono::Utc;
 use serde_json::{json, to_string_pretty, Map, Value};
+use std::env;
 use std::error::Error;
 use std::fs;
 use std::thread::sleep;
 use std::time::Duration;
 
-const DAYS_PATH: &str = "/home/matiasop98/tmp/days.json";
-const MONTHS_PATH: &str = "/home/matiasop98/tmp/months.json";
 const MINUTES_STEP: i64 = 1;
 
 fn main() {
     let step = Duration::new(60 * (MINUTES_STEP as u64), 0);
+
+    // Get paths
+    let args: Vec<String> = env::args().collect();
+    let days_path: &str = &args[1];
+    let months_path: &str = &args[2];
 
     loop {
         sleep(step);
         let utc = Utc::now();
 
         // Read Files
-        let mut days = read_file(DAYS_PATH).unwrap();
-        let mut months = read_file(MONTHS_PATH).unwrap();
+        let mut days = read_file(days_path).unwrap();
+        let mut months = read_file(months_path).unwrap();
 
         // Get current date and month
         let day_current = utc.date().format("%Y-%m-%d").to_string();
@@ -30,8 +34,8 @@ fn main() {
         months = check_and_insert(months, month_current);
 
         // Write days and months to file
-        fs::write(DAYS_PATH, to_string_pretty(&days).unwrap()).expect("Unable to write to file");
-        fs::write(MONTHS_PATH, to_string_pretty(&months).unwrap())
+        fs::write(days_path, to_string_pretty(&days).unwrap()).expect("Unable to write to file");
+        fs::write(months_path, to_string_pretty(&months).unwrap())
             .expect("Unable to write to file");
     }
 }
