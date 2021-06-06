@@ -1,4 +1,5 @@
 use chrono::Utc;
+use csv::Writer;
 use serde_json::{json, to_string_pretty, Map, Value};
 use std::env;
 use std::error::Error;
@@ -9,6 +10,7 @@ use std::time::Duration;
 const MINUTES_STEP: i64 = 1;
 
 fn main() {
+    // json_to_csv("days.json", "days.csv");
     let step = Duration::new(60 * (MINUTES_STEP as u64), 0);
 
     // Get paths
@@ -55,4 +57,19 @@ fn read_file(path: &str) -> Result<Map<String, Value>, Box<dyn Error>> {
     let parsed: Value = serde_json::from_str(&data)?;
     let obj: Map<String, Value> = parsed.as_object().unwrap().clone();
     Ok(obj)
+}
+
+fn json_to_csv(path_json: &str, path_csv: &str) {
+    // Converts path_json to csv
+
+    let data = fs::read_to_string(path_json).unwrap();
+    let parsed: Value = serde_json::from_str(&data).unwrap();
+    let obj: Map<String, Value> = parsed.as_object().unwrap().clone();
+
+    let mut wtr = Writer::from_path(path_csv).unwrap();
+    wtr.write_record(&["date", "minutes"]).unwrap();
+    for item in obj.iter() {
+        wtr.write_record(&[item.0, &item.1.as_i64().unwrap().to_string()])
+            .unwrap();
+    }
 }
