@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::{Datelike, Utc};
 use csv::Writer;
 use serde_json::{json, to_string_pretty, Map, Value};
 use std::env;
@@ -16,27 +16,32 @@ fn main() {
     // Get paths
     let args: Vec<String> = env::args().collect();
     let days_path: &str = &args[1];
-    let months_path: &str = &args[2];
-
+    let weeks_path: &str = &args[2];
+    let months_path: &str = &args[3];
+    println!("{}", days_path);
     loop {
         sleep(step);
         let utc = Utc::now();
 
         // Read Files
         let mut days = read_file(days_path).unwrap();
+        let mut weeks = read_file(weeks_path).unwrap();
         let mut months = read_file(months_path).unwrap();
 
-        // Get current date and month
+        // Get current date, week and month
         let day_current = utc.date().format("%Y-%m-%d").to_string();
+        let week_current = format!("{:?}", utc.iso_week());
         let month_current = utc.date().format("%Y-%m").to_string();
 
-        // If this is a new day or month, create a new Map entry with value MINUTES_STEP
+        // If this is a new day, week or month, create a new Map entry with value MINUTES_STEP
         // Else, add MINUTES_STEP to days and month
         days = check_and_insert(days, day_current);
+        weeks = check_and_insert(weeks, week_current);
         months = check_and_insert(months, month_current);
 
-        // Write days and months to file
+        // Write days, weeks and months to file
         fs::write(days_path, to_string_pretty(&days).unwrap()).expect("Unable to write to file");
+        fs::write(weeks_path, to_string_pretty(&weeks).unwrap()).expect("Unable to write to file");
         fs::write(months_path, to_string_pretty(&months).unwrap())
             .expect("Unable to write to file");
     }
